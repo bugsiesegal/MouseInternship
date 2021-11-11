@@ -50,7 +50,9 @@ class Fiber_Photometry:
     def batch_load_from_tdt(cls, path):
         fp_file = []
         for file_path in glob.glob(path + "*"):
-            cls.load_from_tdt(file_path)
+            fp_file.append(cls.load_from_tdt(file_path))
+
+        return fp_file
 
     def fft(self):
         return np.array([np.fft.fft(data) for data in self.data])
