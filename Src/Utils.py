@@ -7,11 +7,65 @@ from dataclasses import dataclass
 
 import numpy as np
 import tdt
+from typing import Type
 
 
 @dataclass
-class Fiber_Photometry:
+class __data_class__:
     data: np.ndarray
+
+    def save(self, path: str) -> None:
+        """
+        Saves object to path.
+
+        :param path: Path to save to.
+        """
+        with open(path, 'wb') as file:
+            pickle.dump(self, file)
+
+    @classmethod
+    def load(cls, path: str) -> __data_class__:
+        """
+        Loads object from path.
+
+        :param path: Path to load from.
+        :return: Loaded object.
+        """
+        with open(path, 'rb') as file:
+            return pickle.load(file)
+
+    @staticmethod
+    def batch_save(objs: list[__data_class__], path: str) -> None:
+        """
+        Saves a list of objects to path. Labeled by object index in list.
+
+        :param objs: List of objects.
+        :param path: Where the objects should be saved.
+        """
+        for i in range(len(objs)):
+            objs[i].save(path + str(i) + '.pkl')
+
+    @classmethod
+    def batch_load(cls, path: str) -> list[__data_class__]:
+        """
+        Loads a list of objects from folder.
+
+        :param path: Path to folder.
+        :return: List of objects.
+        """
+        obj_files = []
+        for file_path in glob.glob(path + "*.pkl"):
+            obj_files.append(cls.load(file_path))
+
+        return obj_files
+
+
+@dataclass
+class Fiber_Photometry(__data_class__):
+    """
+    A data class containing Fiber Photometry data and parameters.
+    """
+
     onset: np.ndarray
     offset: np.ndarray
     duration: datetime.timedelta
@@ -33,53 +87,6 @@ class Fiber_Photometry:
             tdt_object.epocs.Tick.offset,
             tdt_object.info.duration
         )
-
-    def save(self, path: str) -> None:
-        """
-        Saves Fiber Photometry Object to pkl file.
-
-        :param path: Path to file.
-        """
-        with open(path, 'wb') as file:
-            pickle.dump(self, file)
-
-    @classmethod
-    def load(cls, path: str) -> Fiber_Photometry:
-        """
-        Loads Fiber Photometry Object from pkl file.
-
-        :param path: Path to file.
-        :return: Fiber Photometry Object.
-        """
-        with open(path, 'rb') as file:
-            return pickle.load(file)
-
-    @classmethod
-    def batch_load(cls, path: str) -> list[Fiber_Photometry]:
-        """
-        Loads a folder of Fiber Photometry pkl files.
-
-        :param path: Path to folder.
-        :return: List of Fiber Photometry Objects.
-        """
-        fp_files = []
-        for file_path in glob.glob(path + "*"):
-            fp_files.append(cls.load(file_path))
-
-        return fp_files
-
-    @staticmethod
-    def batch_save(fp_object, path: str) -> None:
-        """
-        Saves list of Fiber Photometry Objects to a folder as pkl files.
-
-        :param fp_object: List of Fiber Photometry Objects.
-        :param path: Path to folder.
-        """
-        i = 0
-        for file in fp_object:
-            file.save(path + "/" + str(i) + ".pkl")
-            i += 1
 
     @classmethod
     def batch_load_from_tdt(cls, path: str) -> list[Fiber_Photometry]:
@@ -115,13 +122,10 @@ class Fiber_Photometry:
         :param window_size: The length of each window.
         :return: Object containing all windows as well as their size.
         """
-        window_list = []
-        for i in range(self.data.size - window_size * 2):
-            window_list.append(
-                self.data[i + window_size:i + window_size * 2].reshape((1, window_size))
-            )
-
-        return windows(np.array(window_list), window_size)
+        temp_data = self.data[0][:-(self.data[0].shape[0] % window_size)]
+        return windows(
+            temp_data.reshape((int(temp_data.shape[0] / window_size), window_size)),
+            window_size)
 
     @staticmethod
     def batch_to_window(fp_objects: list[Fiber_Photometry], window_size: int = 100) -> list[windows]:
@@ -139,18 +143,9 @@ class Fiber_Photometry:
         return batch_windows
 
 
-
 @dataclass
-class windows:
-    data: np.ndarray
+class windows(__data_class__):
+    """
+    A data class containing Fiber Photometry data cut to window_size.
+    """
     window_size: int
-
-    def save(self, path):
-        with open(path, 'wb') as file:
-            pickle.dump(self, file)
-
-    @classmethod
-    def load(cls, path):
-        with open(path, 'rb') as file:
-            return pickle.load(file)
-
