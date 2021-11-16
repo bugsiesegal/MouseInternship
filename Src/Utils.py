@@ -2,66 +2,68 @@ from __future__ import annotations
 
 import datetime
 import glob
-import pickle
+import dill
 from dataclasses import dataclass
 
 import numpy as np
+import os
 import tdt
-from typing import Type
 
 
 @dataclass
-class __data_class__:
+class UtilsData:
     data: np.ndarray
 
-    def save(self, path: str) -> None:
+    def save(self, file_path: str) -> None:
         """
         Saves object to path.
 
-        :param path: Path to save to.
+        :param file_path: Path to save to.
         """
-        with open(path, 'wb') as file:
-            pickle.dump(self, file)
+        with open(file_path, 'wb') as file:
+            dill.dump(self, file)
 
-    @classmethod
-    def load(cls, path: str) -> __data_class__:
+    @staticmethod
+    def load(file_path: str) -> UtilsData:
         """
         Loads object from path.
 
-        :param path: Path to load from.
+        :param file_path: Path to load from.
         :return: Loaded object.
         """
-        with open(path, 'rb') as file:
-            return pickle.load(file)
+        with open(file_path, 'rb') as file:
+            return dill.load(file)
 
     @staticmethod
-    def batch_save(objs: list[__data_class__], path: str) -> None:
+    def batch_save(objs: list[UtilsData], folder_path: str, extension: str = "pkl") -> None:
         """
         Saves a list of objects to path. Labeled by object index in list.
 
+        :param extension: File extension type.
         :param objs: List of objects.
-        :param path: Where the objects should be saved.
+        :param folder_path: Where the objects should be saved.
         """
         for i in range(len(objs)):
-            objs[i].save(path + str(i) + '.pkl')
+            objs[i].save(folder_path + str(i) + '.' + extension)
 
     @classmethod
-    def batch_load(cls, path: str) -> list[__data_class__]:
+    def batch_load(cls, folder_path: str, extension: str = "pkl") -> list[UtilsData]:
         """
         Loads a list of objects from folder.
 
-        :param path: Path to folder.
+        :param extension: File extension type.
+        :param folder_path: Path to folder.
         :return: List of objects.
         """
         obj_files = []
-        for file_path in glob.glob(path + "*.pkl"):
+        for file_path in glob.glob(folder_path + "*." + extension):
             obj_files.append(cls.load(file_path))
 
         return obj_files
 
 
 @dataclass
-class Fiber_Photometry(__data_class__):
+class FiberPhotometry(UtilsData):
     """
     A data class containing Fiber Photometry data and parameters.
     """
@@ -71,7 +73,7 @@ class Fiber_Photometry(__data_class__):
     duration: datetime.timedelta
 
     @classmethod
-    def load_from_tdt(cls, path: str) -> Fiber_Photometry:
+    def load_from_tdt(cls, path: str) -> FiberPhotometry:
         """
         Loads Fiber Photometry data from TDT file and outputs Fiber Photometry object.
 
@@ -80,16 +82,15 @@ class Fiber_Photometry(__data_class__):
         :return: Fiber Photometry object.
         """
         tdt_object = tdt.read_block(path)
-
         return cls(
-            tdt_object.streams.LMag.data,
+            tdt_object.streams.LMag.data[0],
             tdt_object.epocs.Tick.onset,
             tdt_object.epocs.Tick.offset,
             tdt_object.info.duration
         )
 
     @classmethod
-    def batch_load_from_tdt(cls, path: str) -> list[Fiber_Photometry]:
+    def batch_load_from_tdt(cls, path: str) -> list[FiberPhotometry]:
         """
         Loads Fiber Photometry Objects to a list from folder of TDT folders.
 
@@ -114,7 +115,7 @@ class Fiber_Photometry(__data_class__):
         fft = self.fft()
         self.data = np.fft.ifft(fft[:cutoff])
 
-    def to_window(self, window_size: int = 100) -> windows:
+    def to_window(self, window_size: int = 100) -> Windows:
         """
         Cuts data into windows with a size of window_size. Data at the end of the array will be truncated if they
         can't evenly fit.
@@ -122,13 +123,13 @@ class Fiber_Photometry(__data_class__):
         :param window_size: The length of each window.
         :return: Object containing all windows as well as their size.
         """
-        temp_data = self.data[0][:-(self.data[0].shape[0] % window_size)]
-        return windows(
+        temp_data = self.data[:-(self.data.shape[0] % window_size)]
+        return Windows(
             temp_data.reshape((int(temp_data.shape[0] / window_size), window_size)),
             window_size)
 
     @staticmethod
-    def batch_to_window(fp_objects: list[Fiber_Photometry], window_size: int = 100) -> list[windows]:
+    def batch_to_window(fp_objects: list[FiberPhotometry], window_size: int = 100) -> list[Windows]:
         """
         Cuts uses to_window on list of Fiber_Photometry objects.
 
@@ -144,7 +145,7 @@ class Fiber_Photometry(__data_class__):
 
 
 @dataclass
-class windows(__data_class__):
+class Windows(UtilsData):
     """
     A data class containing Fiber Photometry data cut to window_size.
     """
