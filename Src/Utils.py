@@ -82,7 +82,7 @@ class Fiber_Photometry(__data_class__):
         tdt_object = tdt.read_block(path)
 
         return cls(
-            tdt_object.streams.LMag.data,
+            tdt_object.streams.LMag.data[0],
             tdt_object.epocs.Tick.onset,
             tdt_object.epocs.Tick.offset,
             tdt_object.info.duration
@@ -122,9 +122,9 @@ class Fiber_Photometry(__data_class__):
         :param window_size: The length of each window.
         :return: Object containing all windows as well as their size.
         """
-        temp_data = self.data[0][:-(self.data[0].shape[0] % window_size)]
+        temp_data = self.data[:-(self.data.shape[0] % window_size)]
         return windows(
-            temp_data.reshape((int(temp_data.shape[0] / window_size), window_size)),
+            temp_data.reshape((int(temp_data.shape / window_size), window_size)),
             window_size)
 
     @staticmethod
