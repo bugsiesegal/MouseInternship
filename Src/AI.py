@@ -27,7 +27,6 @@ class Fiber_Photometry_Model:
         self.enc_model = Model(inputs=[enc_input], outputs=[enc_out], name='Encoder Model')
         self.model = Model(inputs=[enc_input], outputs=[dec_out], name='Autoencoder Model')
 
-    @property
     def summary(self):
         print(self.model.summary())
         print(self.enc_model.summary())
