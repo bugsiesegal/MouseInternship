@@ -61,7 +61,7 @@ class __data_class__:
 
 
 @dataclass
-class Fiber_Photometry(__data_class__):
+class FiberPhotometry(__data_class__):
     """
     A data class containing Fiber Photometry data and parameters.
     """
@@ -71,7 +71,7 @@ class Fiber_Photometry(__data_class__):
     duration: datetime.timedelta
 
     @classmethod
-    def load_from_tdt(cls, path: str) -> Fiber_Photometry:
+    def load_from_tdt(cls, path: str) -> FiberPhotometry:
         """
         Loads Fiber Photometry data from TDT file and outputs Fiber Photometry object.
 
@@ -89,7 +89,7 @@ class Fiber_Photometry(__data_class__):
         )
 
     @classmethod
-    def batch_load_from_tdt(cls, path: str) -> list[Fiber_Photometry]:
+    def batch_load_from_tdt(cls, path: str) -> list[FiberPhotometry]:
         """
         Loads Fiber Photometry Objects to a list from folder of TDT folders.
 
@@ -114,7 +114,7 @@ class Fiber_Photometry(__data_class__):
         fft = self.fft()
         self.data = np.fft.ifft(fft[:cutoff])
 
-    def to_window(self, window_size: int = 100) -> windows:
+    def to_window(self, window_size: int = 100) -> Windows:
         """
         Cuts data into windows with a size of window_size. Data at the end of the array will be truncated if they
         can't evenly fit.
@@ -123,12 +123,12 @@ class Fiber_Photometry(__data_class__):
         :return: Object containing all windows as well as their size.
         """
         temp_data = self.data[:-(self.data.shape[0] % window_size)]
-        return windows(
-            temp_data.reshape((int(temp_data.shape / window_size), window_size)),
+        return Windows(
+            temp_data.reshape((int(temp_data.shape[0] / window_size), window_size)),
             window_size)
 
     @staticmethod
-    def batch_to_window(fp_objects: list[Fiber_Photometry], window_size: int = 100) -> list[windows]:
+    def batch_to_window(fp_objects: list[FiberPhotometry], window_size: int = 100) -> list[Windows]:
         """
         Cuts uses to_window on list of Fiber_Photometry objects.
 
@@ -144,7 +144,7 @@ class Fiber_Photometry(__data_class__):
 
 
 @dataclass
-class windows(__data_class__):
+class Windows(__data_class__):
     """
     A data class containing Fiber Photometry data cut to window_size.
     """
