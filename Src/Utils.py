@@ -7,61 +7,62 @@ from dataclasses import dataclass
 
 import numpy as np
 import tdt
-from typing import Type
 
 
 @dataclass
-class __data_class__:
+class UtilsData:
     data: np.ndarray
 
-    def save(self, path: str) -> None:
+    def save(self, file_path: str) -> None:
         """
         Saves object to path.
 
-        :param path: Path to save to.
+        :param file_path: Path to save to.
         """
-        with open(path, 'wb') as file:
+        with open(file_path, 'wb') as file:
             pickle.dump(self, file)
 
-    @classmethod
-    def load(cls, path: str) -> __data_class__:
+    @staticmethod
+    def load(file_path: str) -> UtilsData:
         """
         Loads object from path.
 
-        :param path: Path to load from.
+        :param file_path: Path to load from.
         :return: Loaded object.
         """
-        with open(path, 'rb') as file:
+        with open(file_path, 'rb') as file:
             return pickle.load(file)
 
     @staticmethod
-    def batch_save(objs: list[__data_class__], path: str) -> None:
+    def batch_save(objs: list[UtilsData], folder_path: str, extension: str = "pkl") -> None:
         """
         Saves a list of objects to path. Labeled by object index in list.
 
+        :param extension: File extension type.
         :param objs: List of objects.
-        :param path: Where the objects should be saved.
+        :param folder_path: Where the objects should be saved.
         """
         for i in range(len(objs)):
-            objs[i].save(path + str(i) + '.pkl')
+            objs[i].save(folder_path + str(i) + '.' + extension)
 
     @classmethod
-    def batch_load(cls, path: str) -> list[__data_class__]:
+    def batch_load(cls, folder_path: str, extension: str = "pkl") -> list[UtilsData]:
         """
         Loads a list of objects from folder.
 
-        :param path: Path to folder.
+        :param extension: File extension type.
+        :param folder_path: Path to folder.
         :return: List of objects.
         """
         obj_files = []
-        for file_path in glob.glob(path + "*.pkl"):
+        for file_path in glob.glob(folder_path + "*." + extension):
             obj_files.append(cls.load(file_path))
 
         return obj_files
 
 
 @dataclass
-class FiberPhotometry(__data_class__):
+class FiberPhotometry(UtilsData):
     """
     A data class containing Fiber Photometry data and parameters.
     """
@@ -144,7 +145,7 @@ class FiberPhotometry(__data_class__):
 
 
 @dataclass
-class Windows(__data_class__):
+class Windows(UtilsData):
     """
     A data class containing Fiber Photometry data cut to window_size.
     """
