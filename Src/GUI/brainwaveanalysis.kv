@@ -1,0 +1,15 @@
+<Menu>:
+    cols: 3
+    rows: 1
+    pos_hint: (None, None)
+    size_hint: (None, None)
+
+    Button:
+        pos_hint: root.pos_hint
+        text: "Analysis"
+
+
+<AnalysisScreen>:
+    Menu:
+        size_hint: root.size_hint[0], 40
+        pos_hint: 0, root.pos_hint[1]
