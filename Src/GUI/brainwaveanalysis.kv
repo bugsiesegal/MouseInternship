@@ -1,15 +1,46 @@
 <Menu>:
-    cols: 3
     rows: 1
-    pos_hint: (None, None)
-    size_hint: (None, None)
 
-    Button:
-        pos_hint: root.pos_hint
-        text: "Analysis"
+    canvas:
+        Color:
+            rgb: .39215686274, .39215686274, .39215686274
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<BaseScreen>:
+    canvas:
+        Color:
+            rgb: .23529411764, .23529411764, .23529411764
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
 
 <AnalysisScreen>:
-    Menu:
-        size_hint: root.size_hint[0], 40
-        pos_hint: 0, root.pos_hint[1]
+    Label:
+        pos_hint: {'center_x': .5, 'center_y': .9}
+        text: 'Step 1: Upload File(s)'
+    GridLayout:
+        rows: 1
+        size_hint: 0.8, 0.1
+        pos_hint: {'center_x': .5, 'center_y': .8}
+        Button:
+            text: 'File Upload'
+        Button:
+            text: 'Batch File Upload'
+    Label:
+        pos_hint: {'center_x': .5, 'center_y': .7}
+        text: 'Step 2: Split Into Windows'
+    GridLayout:
+        rows: 1
+        size_hint: 0.8, 0.1
+        pos_hint: {'center_x': .5, 'center_y': .6}
+        TextInput:
+            id: window_value
+            halign: 'center'
+            input_filter: 'int'
+            multiline: 'False'
+            padding: [0, self.height / 2.0 - (self.line_height / 2.0) * len(self._lines)]
+        Button:
+            text: 'Split Data'
