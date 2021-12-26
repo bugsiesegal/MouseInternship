@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
 from kivy.graphics import Color, Rectangle
 from kivy.uix.button import Button
@@ -10,6 +11,8 @@ from kivy.properties import ObjectProperty
 from kivy.factory import Factory
 from kivy.uix.textinput import TextInput
 import re
+import os
+from Utils import *
 
 
 class Menu(GridLayout):
@@ -17,6 +20,7 @@ class Menu(GridLayout):
         app = App.get_running_app()
         sm = app.sm
         sm.switch_to(page)
+
     def build_menu(self):
         app = App.get_running_app()
         sm = app.sm
@@ -44,10 +48,17 @@ class BaseScreen(Screen):
 
 
 class AnalysisScreen(BaseScreen):
-    pass
+    def load(self, path):
+        FiberPhotometry.load_from_tdt(path)
+
+    def set_path(self, path):
+        self.filepath.text = path
+        self.dismiss_popup()
+
 
 class AIScreen(BaseScreen):
     pass
+
 
 class BrainwaveAnalysisApp(App):
     def build(self):

@@ -16,26 +16,39 @@
             size: self.size
             pos: self.pos
 
-
 <AnalysisScreen>:
+    filepath: data_path
     Label:
         pos_hint: {'center_x': .5, 'center_y': .9}
-        text: 'Step 1: Upload File(s)'
+        text: 'Step 1: Load From TDT File'
+
+    GridLayout:
+        rows: 1
+        pos_hint: {'center_x': .5, 'center_y': .8}
+        size_hint: 0.8, 0.1
+        TextInput:
+            id: data_path
+            multiline: 'False'
+            padding: [0, self.height / 2.0 - (self.line_height / 2.0) * len(self._lines)]
+            halign: 'center'
+            hint_text: 'Folder Path'
+
     GridLayout:
         rows: 1
         size_hint: 0.8, 0.1
-        pos_hint: {'center_x': .5, 'center_y': .8}
+        pos_hint: {'center_x': .5, 'center_y': .7}
         Button:
             text: 'File Upload'
+            on_release: root.load(data_path.text)
         Button:
             text: 'Batch File Upload'
     Label:
-        pos_hint: {'center_x': .5, 'center_y': .7}
+        pos_hint: {'center_x': .5, 'center_y': .6}
         text: 'Step 2: Split Into Windows'
     GridLayout:
         rows: 1
         size_hint: 0.8, 0.1
-        pos_hint: {'center_x': .5, 'center_y': .6}
+        pos_hint: {'center_x': .5, 'center_y': .5}
         TextInput:
             id: window_value
             halign: 'center'
