@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import datetime
 import glob
-import pickle
+import dill
 from dataclasses import dataclass
 
 import numpy as np
+import os
 import tdt
 
 
@@ -20,7 +21,7 @@ class UtilsData:
         :param file_path: Path to save to.
         """
         with open(file_path, 'wb') as file:
-            pickle.dump(self, file)
+            dill.dump(self, file)
 
     @staticmethod
     def load(file_path: str) -> UtilsData:
@@ -30,8 +31,8 @@ class UtilsData:
         :param file_path: Path to load from.
         :return: Loaded object.
         """
-        with open(file_path, 'rb') as file:
-            return pickle.load(file)
+        with open(os.path.abspath(file_path), 'rb') as file:
+            return dill.load(file)
 
     @staticmethod
     def batch_save(objs: list[UtilsData], folder_path: str, extension: str = "pkl") -> None:
@@ -55,7 +56,7 @@ class UtilsData:
         :return: List of objects.
         """
         obj_files = []
-        for file_path in glob.glob(folder_path + "*." + extension):
+        for file_path in glob.glob(os.path.abspath(folder_path) + "*." + extension):
             obj_files.append(cls.load(file_path))
 
         return obj_files
@@ -80,7 +81,7 @@ class FiberPhotometry(UtilsData):
         :param path: Path to tdt folder.
         :return: Fiber Photometry object.
         """
-        tdt_object = tdt.read_block(path)
+        tdt_object = tdt.read_block(os.path.abspath(path))
 
         return cls(
             tdt_object.streams.LMag.data[0],
@@ -98,7 +99,7 @@ class FiberPhotometry(UtilsData):
         :return: List of Fiber Photometry Objects.
         """
         fp_file = []
-        for file_path in glob.glob(path + "*"):
+        for file_path in glob.glob(os.path.abspath(path) + "*"):
             fp_file.append(cls.load_from_tdt(file_path))
 
         return fp_file
