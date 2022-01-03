@@ -81,8 +81,8 @@ class FiberPhotometry(UtilsData):
         :param path: Path to tdt folder.
         :return: Fiber Photometry object.
         """
-        tdt_object = tdt.read_block(os.path.abspath(path))
-
+        tdt_object = tdt.read_block(path)
+        print(path)
         return cls(
             tdt_object.streams.LMag.data[0],
             tdt_object.epocs.Tick.onset,
@@ -99,7 +99,7 @@ class FiberPhotometry(UtilsData):
         :return: List of Fiber Photometry Objects.
         """
         fp_file = []
-        for file_path in glob.glob(os.path.abspath(path) + "*"):
+        for file_path in glob.glob(path + "*"):
             fp_file.append(cls.load_from_tdt(file_path))
 
         return fp_file

@@ -1,9 +1,10 @@
+import matplotlib.pyplot as plt
 from keras import Model
 from keras.layers import *
 from keras.utils.vis_utils import plot_model
-from keras.optimizers import *
+from keras.optimizers import Adam
+
 import Utils
-import matplotlib.pyplot as plt
 
 
 class FiberPhotometryModel:

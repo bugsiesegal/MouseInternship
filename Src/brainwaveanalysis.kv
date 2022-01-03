@@ -17,3 +17,36 @@
             pos: self.pos
 
 <AnalysisScreen>:
+    GridLayout:
+        rows: 1
+        size_hint_y: 0.2
+        TextInput:
+            id: window_split
+            input_filter: 'int'
+        Button:
+            text: 'Split Data'
+            on_release: root.split_data(int(window_split.text))
+
+<AIScreen>:
+    GridLayout:
+        rows: 2
+        cols: 4
+        size_hint_y: 0.2
+        TextInput:
+            id: compression
+            hint_text: "Number of Behaviors"
+        TextInput:
+            id: dropout
+            hint_text: "Dropout"
+        TextInput:
+            id: learning_rate
+            hint_text: "Learning Rate"
+        Button:
+            text: "Build"
+            on_release: root.build_ai(int(compression.text), float(dropout.text), float(learning_rate.text))
+        TextInput:
+            id: epochs
+            hint_text: "Epochs"
+        Button:
+            text: "Train AI"
+            on_release: root.train_ai(int(epochs.text))
