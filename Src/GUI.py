@@ -1,3 +1,5 @@
+import threading
+
 from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -10,11 +12,6 @@ from kivy.uix.textinput import TextInput
 
 from AI import FiberPhotometryModel
 from Utils import FiberPhotometry
-
-
-def set_app_value(var, value):
-    app = App.get_running_app()
-    setattr(app, var, value)
 
 
 class Menu(GridLayout):
@@ -37,7 +34,7 @@ class Menu(GridLayout):
                       title="Load File"
                       )
 
-        load_button.bind(on_press=lambda x: app.data.append(FiberPhotometry.load(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.load(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -59,7 +56,7 @@ class Menu(GridLayout):
                       title="Batch Load File"
                       )
 
-        load_button.bind(on_press=lambda x: set_app_value('data', FiberPhotometry.batch_load(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.batch_load(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -81,7 +78,7 @@ class Menu(GridLayout):
                       title="Load From TDT File"
                       )
 
-        load_button.bind(on_press=lambda x: app.data.append(FiberPhotometry.load_from_tdt(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.load_from_tdt(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -103,7 +100,7 @@ class Menu(GridLayout):
                       title="Batch Load From TDT File"
                       )
 
-        load_button.bind(on_press=lambda x: set_app_value('data', FiberPhotometry.batch_load_from_tdt(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.batch_load_from_tdt(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -208,7 +205,6 @@ class AnalysisScreen(BaseScreen):
         super().__init__(**kwargs)
 
     def split_data(self, window_size):
-        print(self.app.data)
         self.app.windows = FiberPhotometry.batch_to_window(self.app.data, window_size)
         self.app.window_size = window_size
 
@@ -219,7 +215,53 @@ class AIScreen(BaseScreen):
         self.app.model.build_cnn_model(compression, dropout)
 
     def train_ai(self, epochs):
-        self.app.model.train(self.app.windows, epochs)
+        t1 = threading.Thread(target=self.app.model.train, args=(self.app.windows, epochs))
+        t1.start()
+        t1.join()
+
+    def save_model(self):
+        app = App.get_running_app()
+
+        box_layout = BoxLayout(orientation="vertical")
+        path = TextInput(multiline=False, hint_text="Path")
+        load_button = Button(text='Save Model')
+
+        popup = Popup(auto_dismiss=True,
+                      size_hint=(None, None),
+                      size=(600, 200),
+                      title="Save Model"
+                      )
+
+        load_button.bind(on_press=lambda x: app.model.save(path))
+        load_button.bind(on_press=popup.dismiss)
+
+        box_layout.add_widget(path)
+        box_layout.add_widget(load_button)
+
+        popup.add_widget(box_layout)
+        return popup
+
+    def load_model(self):
+        app = App.get_running_app()
+
+        box_layout = BoxLayout(orientation="vertical")
+        path = TextInput(multiline=False, hint_text="Path")
+        load_button = Button(text='Load Model')
+
+        popup = Popup(auto_dismiss=True,
+                      size_hint=(None, None),
+                      size=(600, 200),
+                      title="Load Model"
+                      )
+
+        load_button.bind(on_press=lambda x: app.model.load(path))
+        load_button.bind(on_press=popup.dismiss)
+
+        box_layout.add_widget(path)
+        box_layout.add_widget(load_button)
+
+        popup.add_widget(box_layout)
+        return popup
 
 
 class BrainwaveAnalysisApp(App):
@@ -227,6 +269,12 @@ class BrainwaveAnalysisApp(App):
     windows = []
     window_size = None
     model = None
+
+    def set_data(self, data):
+        self.data = data
+
+    def set_windows(self, windows):
+        self.windows = windows
 
     def build(self):
         self.sm = ScreenManager(transition=FadeTransition())

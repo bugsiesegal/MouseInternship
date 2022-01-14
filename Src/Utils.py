@@ -31,7 +31,7 @@ class UtilsData:
         :param file_path: Path to load from.
         :return: Loaded object.
         """
-        with open(os.path.abspath(file_path), 'rb') as file:
+        with open(file_path, 'rb') as file:
             return dill.load(file)
 
     @staticmethod
@@ -56,7 +56,7 @@ class UtilsData:
         :return: List of objects.
         """
         obj_files = []
-        for file_path in glob.glob(os.path.abspath(folder_path) + "*." + extension):
+        for file_path in glob.glob(folder_path + "*." + extension):
             obj_files.append(cls.load(file_path))
 
         return obj_files
@@ -82,7 +82,6 @@ class FiberPhotometry(UtilsData):
         :return: Fiber Photometry object.
         """
         tdt_object = tdt.read_block(path)
-        print(path)
         return cls(
             tdt_object.streams.LMag.data[0],
             tdt_object.epocs.Tick.onset,

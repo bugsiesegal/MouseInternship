@@ -1,10 +1,14 @@
+import keras.models
 import matplotlib.pyplot as plt
 from keras import Model
 from keras.layers import *
 from keras.utils.vis_utils import plot_model
-from keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
+from typing import List
+import numpy as np
+import threading
 
-import Utils
+from Utils import *
 
 
 class FiberPhotometryModel:
@@ -80,23 +84,32 @@ class FiberPhotometryModel:
         plot_model(self.enc_model, to_file="Encoder.png", show_shapes=True, show_layer_names=True)
         plot_model(self.model, to_file="Autoencoder.png", show_shapes=True, show_layer_names=True)
 
-    def train(self, data: list[Utils.Windows], epochs=1, history_plot=True):
+    def train(self, data: List[Windows], epochs=1, history_plot=True):
         history_accuracy = []
         history_accuracy_val = []
-        for windows in data:
-            if windows.data.any(None):
-                history = self.model.fit(windows.data, windows.data, epochs=epochs, validation_split=0.2)
-                history_accuracy += history.history['accuracy']
-                history_accuracy_val += history.history['val_accuracy']
+        print("starting")
+        windows = np.concatenate([i.data for i in data])
+        print(windows.shape)
+        if windows.any(None):
+            history = self.model.fit(windows, windows, epochs=epochs, validation_split=0.2)
 
-        if history_plot:
-            plt.plot(history_accuracy)
-            plt.plot(history_accuracy_val)
-            plt.title('model accuracy')
-            plt.ylabel('accuracy')
-            plt.xlabel('epoch')
-            plt.legend(['train', 'test'], loc='upper left')
-            plt.show()
+        plt.plot(data[1].data[0].reshape((1000,)))
+        plt.plot(self.model.predict(data[1].data[0].reshape((1, 1000))).reshape((1000,)))
+        plt.xlabel("Time")
+        plt.title("Data v Prediction")
+        # plt.subplot(212)
+        # plt.plot(self.enc_predict(data[1].data[0]).flatten())
+        plt.show()
 
     def predict(self, data):
         return self.model.predict(data)
+
+    def enc_predict(self, data):
+        return self.enc_model.predict(data)
+
+    def save(self, path):
+        self.model.save(path)
+
+    def load(self, path):
+        self.model = keras.models.load_model(path)
+        self.enc_model = Model(self.model.input, self.model.layers[-11].output)
