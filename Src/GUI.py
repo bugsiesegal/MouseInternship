@@ -12,6 +12,7 @@ from kivy.uix.textinput import TextInput
 
 from AI import FiberPhotometryModel
 from Utils import FiberPhotometry
+from .io import load, save, batch_load, batch_save
 
 
 class Menu(GridLayout):
@@ -34,7 +35,7 @@ class Menu(GridLayout):
                       title="Load File"
                       )
 
-        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.load(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(load(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -56,7 +57,7 @@ class Menu(GridLayout):
                       title="Batch Load File"
                       )
 
-        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.batch_load(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(batch_load(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -78,7 +79,7 @@ class Menu(GridLayout):
                       title="Load From TDT File"
                       )
 
-        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.load_from_tdt(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(load(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -100,7 +101,7 @@ class Menu(GridLayout):
                       title="Batch Load From TDT File"
                       )
 
-        load_button.bind(on_press=lambda x: app.set_data(FiberPhotometry.batch_load_from_tdt(path.text)))
+        load_button.bind(on_press=lambda x: app.set_data(batch_load(path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)
@@ -122,7 +123,7 @@ class Menu(GridLayout):
                       title="Batch Save File"
                       )
 
-        load_button.bind(on_press=lambda x: app.data.append(FiberPhotometry.batch_save(app.data, path.text)))
+        load_button.bind(on_press=lambda x: app.data.append(batch_save(app.data, path.text)))
         load_button.bind(on_press=popup.dismiss)
 
         box_layout.add_widget(path)

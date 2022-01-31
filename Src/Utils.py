@@ -9,11 +9,9 @@ import numpy as np
 import os
 import tdt
 
-from .io import
-
 
 @dataclass
-class FiberPhotometry(PicklableMixin, TdtMixin):
+class FiberPhotometry:
     """
     A data class containing Fiber Photometry data and parameters.
     """
@@ -64,7 +62,7 @@ class FiberPhotometry(PicklableMixin, TdtMixin):
 
 
 @dataclass
-class Windows(PicklableMixin):
+class Windows:
     """
     A data class containing Fiber Photometry data cut to window_size.
     """
