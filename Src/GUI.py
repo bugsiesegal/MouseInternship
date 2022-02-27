@@ -12,8 +12,11 @@ from kivy.uix.textinput import TextInput
 
 from AI import FiberPhotometryModel
 from Utils import FiberPhotometry
-from .io import load, save, batch_load, batch_save
-
+from MouseIO import load, save, batch_load, batch_save
+import pandas as pd
+import numpy as np
+import os, sys
+from kivy.resources import resource_add_path, resource_find
 
 class Menu(GridLayout):
     def switch(self, page, *args):
@@ -167,20 +170,17 @@ class Menu(GridLayout):
         toolbar_dropdown.add_widget(batch_save_btn)
         tool_button.bind(on_release=toolbar_dropdown.open)
 
-        menu_dropdown = DropDown()
         for name in sm.screen_names:
             button = Button(
                 text=name,
                 size_hint_y=None,
                 height=44
             )
+            print(name)
             button.bind(on_release=lambda button: self.switch(button.text))
-            menu_dropdown.add_widget(button)
-        menubutton = Button(text='Pages')
-        menubutton.bind(on_release=menu_dropdown.open)
+            layout.add_widget(button)
 
         layout.add_widget(tool_button)
-        layout.add_widget(menubutton)
 
         self.add_widget(layout)
 
@@ -206,7 +206,7 @@ class AnalysisScreen(BaseScreen):
         super().__init__(**kwargs)
 
     def split_data(self, window_size):
-        self.app.windows = FiberPhotometry.batch_to_window(self.app.data, window_size)
+        self.app.set_windows(FiberPhotometry.batch_to_window(self.app.data, window_size))
         self.app.window_size = window_size
 
 
@@ -264,6 +264,17 @@ class AIScreen(BaseScreen):
         popup.add_widget(box_layout)
         return popup
 
+    def predict_behavior(self, path):
+        for file_num, windows in enumerate(self.app.windows):
+            data = self.app.model.enc_predict(windows.data)
+            data.flatten()
+            num_samples = len(windows.data)
+            times = np.linspace(1, num_samples, num_samples) / windows.frequency
+            data = pd.DataFrame([times, data])
+            data.to_csv(path+str(file_num)+".csv")
+
+
+
 
 class BrainwaveAnalysisApp(App):
     data = []
@@ -273,8 +284,10 @@ class BrainwaveAnalysisApp(App):
 
     def set_data(self, data):
         self.data = data
+        print(self.data)
 
     def set_windows(self, windows):
+        print(windows)
         self.windows = windows
 
     def build(self):
@@ -289,5 +302,7 @@ class BrainwaveAnalysisApp(App):
         return self.sm
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    if hasattr(sys, '_MEIPASS'):
+        resource_add_path(os.path.join(sys._MEIPASS))
     BrainwaveAnalysisApp().run()

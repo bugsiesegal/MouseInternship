@@ -19,6 +19,7 @@ class FiberPhotometry:
     onset: np.ndarray
     offset: np.ndarray
     duration: datetime.timedelta
+    frequency: float
 
     def fft(self) -> np.ndarray:
         """
@@ -40,10 +41,16 @@ class FiberPhotometry:
         :param window_size: The length of each window.
         :return: Object containing all windows as well as their size.
         """
-        temp_data = self.data[:-(self.data.shape[0] % window_size)]
-        return Windows(
-            temp_data.reshape((int(temp_data.shape[0] / window_size), window_size)),
-            window_size)
+        print(self.data.shape)
+        print(1)
+        window_list = []
+        for i in range(self.data[0].size - window_size * 2):
+            print(i)
+            window_list.append(
+                self.data[0][i + window_size:i + window_size * 2].reshape((1, window_size))
+            )
+
+        return Windows(np.array(window_list), window_size, self.frequency)
 
     @staticmethod
     def batch_to_window(fp_objects: list[FiberPhotometry], window_size: int = 100) -> list[Windows]:
@@ -56,7 +63,8 @@ class FiberPhotometry:
         """
         batch_windows = []
         for i in fp_objects:
-            batch_windows.append(i.to_window(window_size))
+            if type(i) == FiberPhotometry:
+                batch_windows.append(i.to_window(window_size))
 
         return batch_windows
 
@@ -68,3 +76,4 @@ class Windows:
     """
     data: np.ndarray
     window_size: int
+    frequency: float

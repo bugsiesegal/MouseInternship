@@ -88,23 +88,16 @@ class FiberPhotometryModel:
         history_accuracy = []
         history_accuracy_val = []
         print("starting")
-        windows = np.concatenate([i.data for i in data])
+        windows = np.concatenate([i.data for i in data]).reshape(-1, data[0].window_size)
         print(windows.shape)
         if windows.any(None):
             history = self.model.fit(windows, windows, epochs=epochs, validation_split=0.2)
-
-        plt.plot(data[1].data[0].reshape((1000,)))
-        plt.plot(self.model.predict(data[1].data[0].reshape((1, 1000))).reshape((1000,)))
-        plt.xlabel("Time")
-        plt.title("Data v Prediction")
-        # plt.subplot(212)
-        # plt.plot(self.enc_predict(data[1].data[0]).flatten())
-        plt.show()
 
     def predict(self, data):
         return self.model.predict(data)
 
     def enc_predict(self, data):
+        print(data)
         return self.enc_model.predict(data)
 
     def save(self, path):
