@@ -50,3 +50,14 @@
         Button:
             text: "Train AI"
             on_release: root.train_ai(int(epochs.text))
+
+    GridLayout:
+        rows: 1
+        size_hint_y: 0.2
+
+        TextInput:
+            id: data_output_path
+            hint_text: "Data Output Path"
+        Button:
+            text: "Predict Behavior Data"
+            on_release: root.predict_behavior(data_output_path.text)
